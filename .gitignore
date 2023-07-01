@@ -1,4 +1,6 @@
 .pio
 .vscode
+lib
+test
 include/settings.h
 platformio.ini
