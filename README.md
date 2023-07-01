@@ -6,6 +6,8 @@ As far as such a remote is costing just a few Euro and can be purchased used for
 
 The idea is to use an ESP-07S for controlling a standard Jarolift Remote control via MQTT.
 
+In use are Channel 0-4: 0 means all channels 1-4 are affected in parallel, channel 1-4 means shutter 1-4 as on your remote.
+
 You can build this on a bread board (see fritzing) or use my PCB (Jarollator).
 
 If somebody has build a nice housing on 3d-printer for the cirquit and the remote, let me know.
