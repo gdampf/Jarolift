@@ -9,3 +9,7 @@ The idea is to use an ESP-07S for controlling a standard Jarolift Remote control
 You can build this on a bread board (see fritzing) or use my PCB (Jarollator).
 
 If somebody has build a nice housing on 3d-printer for the cirquit and the remote, let me know.
+
+To be used with VSCode Version: 1.79.2 (user setup)
+and Platformio 6.1.7, but the versions shouldn't mean that much.
+For Versions on Library the platformio.ini.template
