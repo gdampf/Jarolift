@@ -1,0 +1,74 @@
+; PlatformIO Project Configuration File
+;
+;   Build options: build flags, source filter
+;   Upload options: custom upload port, speed and extra flags
+;   Library options: dependencies, extra library storages
+;   Advanced options: extra scripting
+;
+; Please visit documentation for the other options and examples
+; https://docs.platformio.org/page/projectconf.html
+
+[platformio]
+default_envs = OTA
+description = Simple remote control of a jarolift remote control with LEDs
+
+[common]
+hostname = jarolift1
+ota_pwd = YOUROTAPWD
+
+[env]
+platform = espressif8266
+board = esp07s
+upload_resetmethod = nodemcu
+framework = arduino
+lib_deps = 
+	knolleary/PubSubClient@^2.8
+	ESP8266WiFi
+	ESP8266mDNS
+board_build.partitions = default.csv
+
+[env:debug]
+build_flags = 
+	-D DEBUG
+	-D USETLS
+	-D USECERT
+	'-D HOSTNAME="${common.hostname}"'
+	'-D OTA_PWD="${common.ota_pwd}"'
+upload_speed = 115200
+monitor_speed = 115200
+
+[env:nodebug]
+build_flags = 
+	-D USETLS
+	-D USECERT
+	'-D HOSTNAME="${common.hostname}"'
+	'-D OTA_PWD="${common.ota_pwd}"'
+upload_speed = 115200
+monitor_speed = 115200
+
+[env:OTA]
+build_flags = 
+	-D USETLS
+	-D USECERT
+	'-D HOSTNAME="${common.hostname}"'
+	'-D OTA_PWD="${common.ota_pwd}"'
+monitor_speed = 115200
+upload_port = ${common.hostname}.local
+upload_protocol = espota
+upload_flags = 
+	--port=8266
+	--auth=${common.ota_pwd}
+
+[env:OTA_debug]
+build_flags = 
+	-D DEBUG
+	-D USETLS
+	-D USECERT
+	'-D HOSTNAME="${common.hostname}"'
+	'-D OTA_PWD="${common.ota_pwd}"'
+monitor_speed = 115200
+upload_port = ${common.hostname}.local
+upload_protocol = espota
+upload_flags = 
+	--port=8266
+	--auth=${common.ota_pwd}

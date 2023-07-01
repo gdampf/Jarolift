@@ -1,0 +1,43 @@
+#define PIN_OUT1 5
+#define PIN_OUT2 4
+#define PIN_OUT3 14
+#define PIN_OUT4 12
+#define PIN_IN1 13
+#define PIN_IN2 16
+#define PIN_IN3 2
+#define PIN_IN4 0
+
+#ifndef STASSID
+  #define STASSID "YOURSSID"
+  #define STAPSK  "YOURKEY"
+#endif
+#ifndef HOSTNAME
+  #define HOSTNAME "jarolift8266"
+#endif
+#ifndef OTA_PWD
+  #define OTA_PWD "YOUROTA_PWD"
+#endif
+
+const char* mqtt_server = "YOURMQTTSERVER";
+
+#ifdef USETLS
+  const int mqtt_port = 8883;
+#else
+  const int mqtt_port = 1883;
+#endif
+const char* mqtt_user = "YOURMQTTUSER"; // leave blank if no credentials used
+const char* mqtt_pass = "YOURMQTTPWD"; // leave blank if no credentials used
+
+const char* mqtt_topic = "switches/rlswitch2/#"; //change accordingly
+// #define dryrun
+
+#ifdef USECERT
+static const char CA_CERT[] PROGMEM = R"EOF(
+-----BEGIN CERTIFICATE-----
+YOURCERTIFICATE
+-----END CERTIFICATE-----
+)EOF";
+#endif
+
+#define UPTIMESEC 20
+#define DNTIMESEC 20
