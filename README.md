@@ -1,1 +1,1 @@
-# Jarolift
+# Jarolift/Jarolator
