@@ -1,4 +1,4 @@
-EasyEDA PCB
+# EasyEDA PCB
 The idea is to use an ESP-07S for controlling a standard Jarolift Remote control via MQTT.
 The PCB contains 2 Transistors (Q1 & Q2) for easy programming via PL2 as serial interface.
 Further there are 4 Transistors connected to the LEDs of the Jarolift Remote Control to detect the current active channel and signal its state to IO13, IO16, IO02 and IO00 in that order for Channel 1-4.
