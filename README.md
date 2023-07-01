@@ -12,4 +12,4 @@ If somebody has build a nice housing on 3d-printer for the cirquit and the remot
 
 To be used with VSCode Version: 1.79.2 (user setup)
 and Platformio 6.1.7, but the versions shouldn't mean that much.
-For Versions on Library the platformio.ini.template
+For Versions on Libraries, see the platformio.ini.template!
