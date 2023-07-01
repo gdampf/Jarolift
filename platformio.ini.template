@@ -26,6 +26,9 @@ lib_deps =
 	ESP8266WiFi
 	ESP8266mDNS
 board_build.partitions = default.csv
+extra_scripts = 
+   pre:platformio_version_increment/version_increment_pre.py
+   post:platformio_version_increment/version_increment_post.py
 
 [env:debug]
 build_flags = 

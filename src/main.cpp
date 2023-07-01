@@ -1,3 +1,4 @@
+#include "Version.h"
 #include <Arduino.h>
 #include <settings.h>
 #include <string.h>
@@ -140,12 +141,15 @@ void reconnect() {
       delay_OTA(2000);
     }
   }
+  #define VersionString "Connected by Jarolift Version " VERSION " built " BUILD_TIMESTAMP
+  client.publish(mqtt_stopic,VersionString);
 }
 
 void setup() {
   #ifdef DEBUG
     Serial.begin(115200);
     Serial.println("Booting");
+    Serial.printf("Project version v%s, built %s\n",VERSION,BUILD_TIMESTAMP);
   #endif
 
   pinMode(PIN_OUT1, OUTPUT_OPEN_DRAIN);
