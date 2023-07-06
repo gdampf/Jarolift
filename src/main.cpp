@@ -80,16 +80,17 @@ void update_time() {
     #endif
     return;
   }
-  sprintf(Datum,"%02d.%02d.%04d %02d:%02d:%02d",dateTime.day, dateTime.month, dateTime.year, dateTime.hour, dateTime.minute, dateTime.second);
+  sprintf(Datum,"%02d.%02d.%04d %02d:%02d",dateTime.day, dateTime.month, dateTime.year, dateTime.hour, dateTime.minute);
 
   #ifdef DEBUG
-    Serial.printf("NTP: %d %s\n", dateTime.dayofWeek-1, Datum);
+    Serial.printf("NTP: %d %s:%02d\n", dateTime.dayofWeek-1, Datum, dateTime.second);
   #endif
 }
 
 void tspublish(const char *topic, const char *payload) {
   String pl;
-  pl = Datum + String(":") + payload;
+  static unsigned long seq = 0;
+  pl = Datum + String("-") + (seq++) + String(":") + payload;
   client.publish(topic,pl.c_str(),true);
 }
 
@@ -189,6 +190,7 @@ void reconnect() {
       delay_OTA(2000);
     }
   }
+  update_time();
   #define VersionString "Connected by Jarolift Version " VERSION " built " BUILD_TIMESTAMP
   tspublish(mqtt_stopic,VersionString);
 }
@@ -348,7 +350,7 @@ void loop() {
             break;
           } 
         }
-        if (s == lazy && last_event + 1000 > millis()) {
+        if (s == lazy && last_event + UPDATEPERIOD > millis()) {
           last_event = millis();
           if (last_Cmd != none) {
             String ss;
