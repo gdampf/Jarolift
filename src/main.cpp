@@ -8,6 +8,7 @@
 #include <ArduinoOTA.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include <NTPtimeESP.h>
 
 #if !defined(ESP8266)
   #error This code is designed to run on ESP8266 only
@@ -52,23 +53,60 @@ Cmd cmdqueue[5] = { none };
 int cur_RolNo = -1;
 unsigned long last_event = millis();
 Cmd cur_Cmd = none;
+Cmd last_Cmd = none;
+int last_RolNo = -1;
 #define PRESSDURATION 100
 #define RELEASEDURATION 50
+
+char Datum[30];
+
+void update_time() {
+  static NTPtime NTPch("europe.pool.ntp.org");
+  static strDateTime dateTime;
+
+  int i = 0;
+  do
+  {
+    dateTime = NTPch.getNTPtime(1.0,1);
+    if (!dateTime.valid) delay(100);  
+    #ifdef DEBUG
+      Serial.print(".");
+    #endif
+  } while (!dateTime.valid and i++ < 50);  
+
+  if(!dateTime.valid){
+    #ifdef DEBUG
+      Serial.println("Failed to obtain time");
+    #endif
+    return;
+  }
+  sprintf(Datum,"%02d.%02d.%04d %02d:%02d:%02d",dateTime.day, dateTime.month, dateTime.year, dateTime.hour, dateTime.minute, dateTime.second);
+
+  #ifdef DEBUG
+    Serial.printf("NTP: %d %s\n", dateTime.dayofWeek-1, Datum);
+  #endif
+}
+
+void tspublish(const char *topic, const char *payload) {
+  String pl;
+  pl = Datum + String(":") + payload;
+  client.publish(topic,pl.c_str(),true);
+}
 
 void callback(char* topic, byte* payload, unsigned int length) {
   char spayload[3];
   int RolNo;
-  if (length != 2) {
-    #ifdef DEBUG
-      Serial.println("Ungültige Befehlslänge!");
-    #endif
-    return;
-  }
-  int b = strlen(mqtt_topic)-2;
+
+  int b = strlen(mqtt_stopic);
+  if (strncmp(topic,mqtt_stopic,b) == 0) return;
+  b = strlen(mqtt_etopic);
+  if (strncmp(topic,mqtt_etopic,b) == 0) return;
+  b = strlen(mqtt_topic)-2;
   if (strncmp(topic,mqtt_topic,b)) {
     #ifdef DEBUG
       Serial.println("Ungültiges Topic!");
     #endif
+    tspublish(mqtt_etopic,"Ungültiges Topic!");
     return;
   }
   int o = strlen(topic)-b;
@@ -83,6 +121,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
     #ifdef DEBUG
       Serial.println("Ungültiger Rollladen!");
     #endif
+    tspublish(mqtt_etopic,"Ungültiger Rollladen!");
+    return;
+  }
+  if (length == 0) return;
+  if (length != 2) {
+    #ifdef DEBUG
+      Serial.println("Ungültige Befehlslänge!");
+    #endif
+    tspublish(mqtt_etopic,"Ungültige Befehlslänge!");
     return;
   }
 
@@ -101,6 +148,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     #ifdef DEBUG
       Serial.println("Kenne Befehl nicht!");
     #endif
+    tspublish(mqtt_etopic,"Kenne Befehl nicht!");
     return;
   }
   #ifdef DEBUG
@@ -132,8 +180,8 @@ void reconnect() {
         Serial.print("failed, status code = ");
         Serial.println(client.state());
         #ifdef USETLS
-          Serial.print("LastSSLError = ");
           char errt[50];
+          Serial.print("LastSSLError = ");
           espClient.getLastSSLError(errt, 50);
           Serial.println(errt);
         #endif
@@ -142,7 +190,7 @@ void reconnect() {
     }
   }
   #define VersionString "Connected by Jarolift Version " VERSION " built " BUILD_TIMESTAMP
-  client.publish(mqtt_stopic,VersionString);
+  tspublish(mqtt_stopic,VersionString);
 }
 
 void setup() {
@@ -266,7 +314,7 @@ void loop() {
     static State s = lazy;
 
     static bool in[4] = {false,false,false,false};
-    bool changed = false;
+    bool changed __attribute__ ((unused)) = false;
 
     if (in[0] == digitalRead(PIN_IN1)) { in[0] = !in[0]; changed = true; } 
     if (in[1] == digitalRead(PIN_IN2)) { in[1] = !in[1]; changed = true; } 
@@ -298,7 +346,17 @@ void loop() {
             cmdqueue[i] = none;
             s = selectr;
             break;
+          } 
+        }
+        if (s == lazy && last_event + 1000 > millis()) {
+          last_event = millis();
+          if (last_Cmd != none) {
+            String ss;
+            ss = String(VersionString) + String(" - Last Cmd done: ") + String(last_RolNo) + String("/") + String(last_Cmd == up ? "UP" : last_Cmd == stop ? "ST" :  last_Cmd == down ? "DN" : "__");
+            tspublish(mqtt_stopic,ss.c_str());
+            last_Cmd = none;
           }
+          update_time();
         }  
         break;
       case selectr:
@@ -387,6 +445,8 @@ void loop() {
             default:
               s = lazy;
           }
+          last_Cmd = cur_Cmd;
+          last_RolNo = cur_RolNo;
           cur_Cmd = none;
         }
         break;

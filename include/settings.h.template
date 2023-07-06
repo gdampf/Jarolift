@@ -29,6 +29,8 @@ const char* mqtt_user = "YOURMQTTUSER"; // leave blank if no credentials used
 const char* mqtt_pass = "YOURMQTTPWD"; // leave blank if no credentials used
 
 const char* mqtt_topic = "switches/rlswitch2/#"; //change accordingly
+const char* mqtt_stopic = "switches/rlswitch2/status";
+const char* mqtt_etopic = "switches/rlswitch2/error";
 // #define dryrun
 
 #ifdef USECERT

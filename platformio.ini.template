@@ -25,6 +25,7 @@ lib_deps =
 	knolleary/PubSubClient@^2.8
 	ESP8266WiFi
 	ESP8266mDNS
+    NTPtimeESP
 board_build.partitions = default.csv
 extra_scripts = 
    pre:platformio_version_increment/version_increment_pre.py
