@@ -61,7 +61,7 @@ int last_RolNo = -1;
 char Datum[30];
 
 void update_time() {
-  static NTPtime NTPch("europe.pool.ntp.org");
+  static NTPtime NTPch(ntp_server);
   static strDateTime dateTime;
 
   int i = 0;

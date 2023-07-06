@@ -19,6 +19,7 @@
 #endif
 
 const char* mqtt_server = "YOURMQTTSERVER";
+const char* ntp_server = "europe.pool.ntp.org";
 
 #ifdef USETLS
   const int mqtt_port = 8883;
