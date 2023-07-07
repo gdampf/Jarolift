@@ -350,7 +350,7 @@ void loop() {
             break;
           } 
         }
-        if (s == lazy && last_event + UPDATEPERIOD > millis()) {
+        if (s == lazy && last_event + UPDATEPERIOD < millis()) {
           last_event = millis();
           if (last_Cmd != none) {
             String ss;
