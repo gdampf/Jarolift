@@ -53,10 +53,6 @@ Cmd cmdqueue[5] = { none };
 int cur_RolNo = -1;
 unsigned long last_event = millis();
 Cmd cur_Cmd = none;
-Cmd last_Cmd = none;
-int last_RolNo = -1;
-#define PRESSDURATION 100
-#define RELEASEDURATION 50
 
 char Datum[30];
 
@@ -314,6 +310,7 @@ void loop() {
 
   #ifndef dryrun
     static State s = lazy;
+    static String ss;
 
     static bool in[4] = {false,false,false,false};
     bool changed __attribute__ ((unused)) = false;
@@ -350,19 +347,18 @@ void loop() {
             break;
           } 
         }
-        if (s == lazy && last_event + UPDATEPERIOD < millis()) {
+        if (s == lazy && UPDATEPERIOD < millis() - last_event) {
           last_event = millis();
-          if (last_Cmd != none) {
-            String ss;
-            ss = String(VersionString) + String(" - Last Cmd done: ") + String(last_RolNo) + String("/") + String(last_Cmd == up ? "UP" : last_Cmd == stop ? "ST" :  last_Cmd == down ? "DN" : "__");
+          if (ss.length() > 0) {
+            ss = String(VersionString) + String(" - Last Cmds done") + ss;
             tspublish(mqtt_stopic,ss.c_str());
-            last_Cmd = none;
+            ss = "";
           }
           update_time();
         }  
         break;
       case selectr:
-        if (millis() - last_event > PRESSDURATION) {
+        if (millis() - last_event > PRESSDURATIONSEL) {
           // deactivate select
           digitalWrite(PIN_OUT4, HIGH);
           last_event = millis();
@@ -419,7 +415,7 @@ void loop() {
         }
         break;
       case cmdsend:
-        if (millis() - last_event > PRESSDURATION) {
+        if (millis() - last_event > PRESSDURATIONACT) {
           last_event = millis();
           // deactivate CMD
           switch(cur_Cmd) {
@@ -447,8 +443,7 @@ void loop() {
             default:
               s = lazy;
           }
-          last_Cmd = cur_Cmd;
-          last_RolNo = cur_RolNo;
+          ss += String(" : ") + String(cur_RolNo) + String("/") + String(cur_Cmd == up ? "UP" : cur_Cmd == stop ? "ST" :  cur_Cmd == down ? "DN" : "__");
           cur_Cmd = none;
         }
         break;
