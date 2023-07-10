@@ -187,8 +187,7 @@ void reconnect() {
     }
   }
   update_time();
-  #define VersionString "Connected by Jarolift Version " VERSION " built " BUILD_TIMESTAMP
-  tspublish(mqtt_stopic,VersionString);
+  tspublish(mqtt_stopic,"New Connected by " VersionString);
 }
 
 void setup() {

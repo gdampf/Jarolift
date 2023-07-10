@@ -48,3 +48,4 @@ YOURCERTIFICATE
 #define UPTIMESEC 20
 #define DNTIMESEC 20
 #define UPDATEPERIOD 30000
+#define VersionString "Jarolift Version " VERSION " built " BUILD_TIMESTAMP
