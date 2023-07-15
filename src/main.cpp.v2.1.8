@@ -47,7 +47,7 @@ void delay_OTA(unsigned long msec = 0)
   }
 }
 
-enum State { lazy, selectr, waitforled, selnohit, selhit, cmdsend, endwait };
+enum State { lazy, selectr, selnohit, selhit, cmdsend, endwait };
 enum Cmd { none = 0, up = 1, stop = 2, down = 3 };
 Cmd cmdqueue[5] = { none };
 int cur_RolNo = -1;
@@ -205,7 +205,7 @@ void setup() {
   digitalWrite(PIN_OUT3, HIGH);
   pinMode(PIN_OUT4, OUTPUT_OPEN_DRAIN);
   digitalWrite(PIN_OUT4, HIGH);
-
+  
   // All input need Pullup
   pinMode(PIN_IN1, PINMODE1);
   pinMode(PIN_IN2, PINMODE2);
@@ -312,30 +312,19 @@ void loop() {
     static State s = lazy;
     static String ss;
 
-    static bool changed = false;
-    #ifdef DEBUG
-      static bool changed2 = false;
-    #endif
-    static const unsigned int pinin[4] = { PIN_IN1, PIN_IN2, PIN_IN3, PIN_IN4 };
-    static const uint32_t mask = (1 << PIN_IN1) | (1 << PIN_IN2) | (1 << PIN_IN3) | (1 << PIN_IN4);
-    static uint32_t old_in_all = mask;
-    static unsigned long last_select = millis() - 11;
-    static uint32_t in_all = old_in_all;
-    if (millis() - last_select > 10) in_all = ((GPI & 0xffff) | ((GP16I & 1) << 16)) & mask; 
-    if (old_in_all != in_all ) {
-      old_in_all = in_all; 
-      changed = true; 
-      #ifdef DEBUG
-        changed2 = true;
-      #endif
-    }
+    static bool in[4] = {false,false,false,false};
+    bool changed __attribute__ ((unused)) = false;
+
+    if (in[0] == digitalRead(PIN_IN1)) { in[0] = !in[0]; changed = true; } 
+    if (in[1] == digitalRead(PIN_IN2)) { in[1] = !in[1]; changed = true; } 
+    if (in[2] == digitalRead(PIN_IN3)) { in[2] = !in[2]; changed = true; } 
+    if (in[3] == digitalRead(PIN_IN4)) { in[3] = !in[3]; changed = true; } 
     delay_OTA();
 
     #ifdef DEBUG
-      if (changed2) {
+      if (changed) {
         Serial.print("LED-Status: ");
-        Serial.println(in_all,BIN);
-        changed2 = false;
+        for (int i = 0; i < 4; i++) { Serial.print(in[i]); if (i<3) Serial.print(","); else Serial.println(); }
       }
     #endif
   
@@ -348,7 +337,6 @@ void loop() {
             digitalWrite(PIN_OUT4, LOW);
             // next_event = now + 100 ms
             last_event = millis();
-            last_select = last_event;
             #ifdef DEBUG
               Serial.printf("Signal 4 low at %lu\n",last_event);
             #endif
@@ -377,18 +365,12 @@ void loop() {
           #ifdef DEBUG
             Serial.printf("Signal 4 high at %lu\n",last_event);
           #endif
-		      s = waitforled;
-	      }
-		    break;
-	    case waitforled:
-        if (changed) {
-          changed = false;
           int curSel = 0;
           int cnt = 0;
-          for (int i=0; i<4; i++) if (((in_all >> pinin[i]) & 1) == 0) {curSel = i+1; cnt++;}
+          for (int i=0; i<4; i++) if (in[i]) {curSel = i+1; cnt++;}
           if ((cnt == 4 && cur_RolNo == 0) || (cnt == 1 && curSel == cur_RolNo)) s = selhit;
           else s = selnohit;
-        } else if (millis() - last_event > WAITLEDDURATION) s = selnohit;
+        }
         break;
       case selnohit:
         if (millis() - last_event > RELEASEDURATION) {

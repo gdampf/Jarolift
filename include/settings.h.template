@@ -6,6 +6,16 @@
 #define PIN_IN2 16
 #define PIN_IN3 2
 #define PIN_IN4 0
+#define PINMODE1 INPUT_PULLUP
+// GPIO13 needs a Pullup
+#define PINMODE2 INPUT 
+// no internal Pullup at GPIO16 - external 10k needed
+// #define PINMODE3 INPUT_PULLUP
+#define PINMODE3 INPUT
+// GPIO02 has allways a Pullup, if ESP07, but just a LED if ESP12
+#define PINMODE4 INPUT
+// GPIO00 has allways a Pullup
+  
 
 #ifndef STASSID
   #define STASSID "YOURSSID"
@@ -29,9 +39,11 @@ const char* ntp_server = "europe.pool.ntp.org";
 const char* mqtt_user = "YOURMQTTUSER"; // leave blank if no credentials used
 const char* mqtt_pass = "YOURMQTTPWD"; // leave blank if no credentials used
 
-const char* mqtt_topic = "switches/rlswitch2/#"; //change accordingly
-const char* mqtt_stopic = "switches/rlswitch2/status";
-const char* mqtt_etopic = "switches/rlswitch2/error";
+// change accordingly
+#define MQTTBASETOPIC "switches/rlswitch2/"  
+const char* mqtt_topic = MQTTBASETOPIC "#";
+const char* mqtt_stopic = MQTTBASETOPIC "status_rollo";
+const char* mqtt_etopic = MQTTBASETOPIC "error_rollo";
 // #define dryrun
 
 #ifdef USECERT
@@ -44,7 +56,8 @@ YOURCERTIFICATE
 
 #define PRESSDURATIONSEL 100
 #define PRESSDURATIONACT 500
-#define RELEASEDURATION 100
+#define RELEASEDURATION 200
+#define WAITLEDDURATION 500
 #define UPTIMESEC 20
 #define DNTIMESEC 20
 #define UPDATEPERIOD 30000

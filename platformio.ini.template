@@ -13,6 +13,7 @@ default_envs = OTA
 description = Simple remote control of a jarolift remote control with LEDs
 
 [common]
+; hostname = jarotest
 hostname = jarolift1
 ota_pwd = YOUROTAPWD
 
