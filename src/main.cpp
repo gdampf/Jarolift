@@ -94,6 +94,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   char spayload[3];
   int RolNo;
 
+  if (length == 0) return;
   int b = strlen(mqtt_stopic);
   if (strncmp(topic,mqtt_stopic,b) == 0) return;
   b = strlen(mqtt_etopic);
