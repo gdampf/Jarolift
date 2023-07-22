@@ -27,37 +27,26 @@ lib_deps =
 	ESP8266WiFi
 	ESP8266mDNS
     NTPtimeESP
-board_build.partitions = default.csv
+build_flags =
+	-D USETLS
+	-D USEFP
+	'-D HOSTNAME="${common.hostname}"'
+	'-D OTA_PWD="${common.ota_pwd}"'
 extra_scripts = 
    pre:platformio_version_increment/version_increment_pre.py
    post:platformio_version_increment/version_increment_post.py
+monitor_speed = 115200
 
 [env:debug]
-build_flags = 
+build_flags =
+    ${env.build_flags}
 	-D DEBUG
-	-D USETLS
-	-D USECERT
-	'-D HOSTNAME="${common.hostname}"'
-	'-D OTA_PWD="${common.ota_pwd}"'
 upload_speed = 115200
-monitor_speed = 115200
 
 [env:nodebug]
-build_flags = 
-	-D USETLS
-	-D USECERT
-	'-D HOSTNAME="${common.hostname}"'
-	'-D OTA_PWD="${common.ota_pwd}"'
 upload_speed = 115200
-monitor_speed = 115200
 
 [env:OTA]
-build_flags = 
-	-D USETLS
-	-D USECERT
-	'-D HOSTNAME="${common.hostname}"'
-	'-D OTA_PWD="${common.ota_pwd}"'
-monitor_speed = 115200
 upload_port = ${common.hostname}.local
 upload_protocol = espota
 upload_flags = 
@@ -66,12 +55,8 @@ upload_flags =
 
 [env:OTA_debug]
 build_flags = 
+    ${env.build_flags}
 	-D DEBUG
-	-D USETLS
-	-D USECERT
-	'-D HOSTNAME="${common.hostname}"'
-	'-D OTA_PWD="${common.ota_pwd}"'
-monitor_speed = 115200
 upload_port = ${common.hostname}.local
 upload_protocol = espota
 upload_flags = 

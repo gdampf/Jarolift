@@ -72,7 +72,7 @@ void update_time() {
 
   if(!dateTime.valid){
     #ifdef DEBUG
-      Serial.println("Failed to obtain time");
+      Serial.println(F("Failed to obtain time"));
     #endif
     return;
   }
@@ -163,7 +163,7 @@ void reconnect() {
   
       if (client.subscribe(mqtt_topic)) {
         #ifdef DEBUG
-          Serial.print("subscribed to ");
+          Serial.print(F("subscribed to "));
           Serial.println(mqtt_topic);
         #endif
       }
@@ -175,11 +175,11 @@ void reconnect() {
     }
     else {
       #ifdef DEBUG
-        Serial.print("failed, status code = ");
+        Serial.print(F("failed, status code = "));
         Serial.println(client.state());
         #ifdef USETLS
           char errt[50];
-          Serial.print("LastSSLError = ");
+          Serial.print(F("LastSSLError = "));
           espClient.getLastSSLError(errt, 50);
           Serial.println(errt);
         #endif
@@ -194,7 +194,7 @@ void reconnect() {
 void setup() {
   #ifdef DEBUG
     Serial.begin(115200);
-    Serial.println("Booting");
+    Serial.println(F("Booting"));
     Serial.printf("Project version v%s, built %s\n",VERSION,BUILD_TIMESTAMP);
   #endif
 
@@ -217,7 +217,7 @@ void setup() {
   WiFi.begin(ssid, password);
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {
     #ifdef DEBUG
-      Serial.println("Connection Failed! Rebooting...");
+      Serial.println(F("Connection Failed! Rebooting..."));
     #endif
     delay(5000);
     ESP.restart();
@@ -227,7 +227,11 @@ void setup() {
     #ifdef USECERT
       espClient.setTrustAnchors(&cert);
     #else
-      espClient.setInsecure();
+      #ifdef USEFP
+        espClient.setFingerprint(fingerprint);
+      #else
+        espClient.setInsecure();
+      #endif
     #endif
   #endif
   client.setServer(mqtt_server, mqtt_port);
@@ -250,11 +254,11 @@ void setup() {
   ArduinoOTA.onStart([]() {
     if (ArduinoOTA.getCommand() == U_FLASH) {
       #ifdef DEBUG
-        Serial.println("Start updating sketch");
+        Serial.println(F("Start updating sketch"));
       #endif
     } else { // U_FS
       #ifdef DEBUG
-        Serial.println("Start updating filesystem");
+        Serial.println(F("Start updating filesystem"));
       #endif
     }
 
@@ -262,7 +266,7 @@ void setup() {
   });
   ArduinoOTA.onEnd([]() {
     #ifdef DEBUG
-      Serial.println("\nEnd");
+      Serial.println(F("\nEnd"));
     #endif
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -274,23 +278,23 @@ void setup() {
     #ifdef DEBUG
       Serial.printf("Error[%u]: ", error);
       if (error == OTA_AUTH_ERROR) {
-        Serial.println("Auth Failed");
+        Serial.println(F("Auth Failed"));
       } else if (error == OTA_BEGIN_ERROR) {
-        Serial.println("Begin Failed");
+        Serial.println(F("Begin Failed"));
       } else if (error == OTA_CONNECT_ERROR) {
-        Serial.println("Connect Failed");
+        Serial.println(F("Connect Failed"));
       } else if (error == OTA_RECEIVE_ERROR) {
-        Serial.println("Receive Failed");
+        Serial.println(F("Receive Failed"));
       } else if (error == OTA_END_ERROR) {
-        Serial.println("End Failed");
+        Serial.println(F("End Failed"));
     }
     #endif
   });
   ArduinoOTA.begin();
 
   #ifdef DEBUG
-    Serial.println("Ready");
-    Serial.print("IP address: ");
+    Serial.println(F("Ready"));
+    Serial.print(F("IP address: "));
     Serial.println(WiFi.localIP());
   #endif
 }
@@ -303,7 +307,7 @@ void loop() {
     #ifdef DEBUG
       static unsigned long pause = millis();
       if (millis() - pause > 10000) {
-        Serial.println("still connected...");
+        Serial.println(F("still connected..."));
         pause = millis();
       }
     #endif
@@ -334,7 +338,7 @@ void loop() {
 
     #ifdef DEBUG
       if (changed2) {
-        Serial.print("LED-Status: ");
+        Serial.print(F("LED-Status: "));
         Serial.println(in_all,BIN);
         changed2 = false;
       }

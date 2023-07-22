@@ -54,6 +54,10 @@ YOURCERTIFICATE
 )EOF";
 #endif
 
+#ifdef USEFP
+  const char fingerprint[] PROGMEM = "YOURFINGERPRINT";
+#endif
+
 #define PRESSDURATIONSEL 100
 #define PRESSDURATIONACT 500
 #define RELEASEDURATION 200
